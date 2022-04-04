@@ -12,10 +12,16 @@ namespace ApiAnime.Models
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Chapters { get; set; }
+        public string Episodes { get; set; }
         public string Image { get; set; }
-        public string Studio { get; set; }
+        public string Producers { get; set; }
         public string Date { get; set; }
-        public string Genre { get; set; }
+        public string Genres { get; set; }
+        public string Status { get; set; }
+        public string Premiered { get; set; }
+        public string Broadcast { get; set; }
+        public string Demographic { get; set; }
+        public string Duration { get; set; }
+
     }
 }
