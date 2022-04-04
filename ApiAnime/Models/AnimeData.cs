@@ -14,7 +14,7 @@ namespace ApiAnime.Models
         public string Description { get; set; }
         public string Episodes { get; set; }
         public string Image { get; set; }
-        public string Producers { get; set; }
+        public string Studios { get; set; }
         public string Date { get; set; }
         public string Genres { get; set; }
         public string Status { get; set; }
