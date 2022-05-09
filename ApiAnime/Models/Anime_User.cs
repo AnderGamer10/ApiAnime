@@ -10,13 +10,14 @@ namespace ApiAnime.Models
     public class Anime_User
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int FavoritoId { get; set; }
         [Required]
         [ForeignKey("AnimeData")]
         public string AnimeName { get; set; }
         [Required]
         [ForeignKey("UserData")]
-        public int UsuarioId { get; set; }
+        public string Username { get; set; }
 
         //PROPIEDADES DE NAVEGACIÓN
         [System.Text.Json.Serialization.JsonIgnore]
