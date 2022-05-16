@@ -17,10 +17,12 @@ namespace ApiAnime.Controllers
     public class UserDatasController : ControllerBase
     {
         private IUserService _userService;
+        private readonly ApiAnimeContext _context;
 
-        public UserDatasController(IUserService userService)
+        public UserDatasController(ApiAnimeContext context, IUserService userService)
         {
             _userService = userService;
+            _context = context;
         }
 
         [HttpPost("authenticate")]
@@ -34,12 +36,18 @@ namespace ApiAnime.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        //[HttpGet]
+        //public IActionResult GetAll()
+        //{
+        //    var users = _userService.GetAll();
+        //    return Ok(users);
+        //}
+
+        // GET: api/AnimeDatas
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<ActionResult<IEnumerable<UserData>>> GetUserData()
         {
-            var users = _userService.GetAll();
-            return Ok(users);
+            return await _context.UserData.ToListAsync();
         }
     }
 }

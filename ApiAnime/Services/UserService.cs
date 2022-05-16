@@ -1,5 +1,6 @@
 ﻿using ApiAnime.Helpers;
 using ApiAnime.Models;
+using ApiAnime.Data;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -8,8 +9,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-
 namespace ApiAnime.Services
 {
     public interface IUserService
@@ -22,66 +21,70 @@ namespace ApiAnime.Services
     public class UserService : IUserService
     {
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
-        private List<UserData> _users = new List<UserData>
-    {
-        new UserData { Id = 1, FirstName = "Test", LastName = "User", Username = "test", Password = "test", Role = "user" }
-    };
 
         private readonly AppSettings _appSettings;
-
-        public UserService(IOptions<AppSettings> appSettings)
+        private readonly ApiAnimeContext _context;
+        public UserService(IOptions<AppSettings> appSettings, ApiAnimeContext context)
         {
             _appSettings = appSettings.Value;
+            _context = context;
         }
-
         public AuthenticateResponse Authenticate(AuthenticateRequest model)
         {
-            var user = _users.SingleOrDefault(x => x.Username == model.Username && x.Password == model.Password);
+            var user = _context.UserData.SingleOrDefault(u => u.Username == model.Username && u.Password == model.Password);
 
-            // return null if user not found
+            // 1.- control null
             if (user == null) return null;
+            // 2.- control db
 
-            // authentication successful so generate jwt token
-            var token = generateJwtToken(user);
 
-            return new AuthenticateResponse(user, token);
+            // autenticacion válida -> generamos jwt
+            var (token, validTo) = generateJwtToken(user);
+
+            return new AuthenticateResponse
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username,
+                Token = token,
+                ValidTo = validTo
+            };
         }
 
         public IEnumerable<UserData> GetAll()
         {
-            return _users;
+            return _context.UserData;
         }
 
         public UserData GetById(int id)
         {
-            return _users.FirstOrDefault(x => x.Id == id);
+            return _context.UserData.FirstOrDefault(x => x.Id == id);
         }
 
         // helper methods
 
-        private string generateJwtToken(UserData user)
+        private (string token, DateTime validTo) generateJwtToken(UserData user)
         {
-            // generate token that is valid for 7 days
+            // generamos un token válido para 7 días
+            var dias = 7;
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("id", user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Username),
+                    new Claim(ClaimTypes.Role, user.Role),
+                }),
+                Expires = DateTime.UtcNow.AddDays(dias),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
-
-        IEnumerable<UserData> IUserService.GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        UserData IUserService.GetById(int id)
-        {
-            throw new NotImplementedException();
+            return (token: tokenHandler.WriteToken(token), validTo: token.ValidTo);
         }
     }
 }

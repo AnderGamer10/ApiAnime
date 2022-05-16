@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ApiAnime.Data;
 using ApiAnime.Models;
+using ApiAnime.Helpers;
 
 namespace ApiAnime.Controllers
 {
@@ -44,6 +45,7 @@ namespace ApiAnime.Controllers
 
         // PUT: api/Anime_User/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAnime_User(int id, Anime_User anime_User)
         {
@@ -75,6 +77,7 @@ namespace ApiAnime.Controllers
 
         // POST: api/Anime_User
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Anime_User>> PostAnime_User(Anime_User anime_User)
         {
@@ -85,6 +88,7 @@ namespace ApiAnime.Controllers
         }
 
         // DELETE: api/Anime_User/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAnime_User(int id)
         {

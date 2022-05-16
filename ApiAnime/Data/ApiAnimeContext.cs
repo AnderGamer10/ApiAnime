@@ -14,10 +14,32 @@ namespace ApiAnime.Data
         {
         }
 
-        public DbSet<ApiAnime.Models.Anime_User> Anime_User { get; set; }
+        public DbSet<Anime_User> Anime_User { get; set; }
 
-        public DbSet<ApiAnime.Models.AnimeData> AnimeData { get; set; }
+        public DbSet<AnimeData> AnimeData { get; set; }
 
-        public DbSet<ApiAnime.Models.UserData> UserData { get; set; }
+        public DbSet<UserData> UserData { get; set; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

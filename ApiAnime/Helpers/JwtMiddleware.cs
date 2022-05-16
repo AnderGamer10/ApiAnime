@@ -1,4 +1,5 @@
-﻿using ApiAnime.Services;
+﻿using ApiAnime.Data;
+using ApiAnime.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,12 +26,16 @@ namespace ApiAnime.Helpers
 
         public async Task Invoke(HttpContext context, IUserService userService)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-            if (token != null)
-                attachUserToContext(context, userService, token);
-
+            // ====> Request ===>
+            string[] authoData = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ");
+            if (authoData != null && authoData.Length == 2)
+                if (authoData[0] == "Bearer")
+                    attachUserToContext(context, userService, authoData[1]);
+            // ===
             await _next(context);
+            // ===
+            // <=== Response <===
+
         }
 
         private void attachUserToContext(HttpContext context, IUserService userService, string token)
@@ -47,12 +53,18 @@ namespace ApiAnime.Helpers
                     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
-
+                // a estas altura, si el token no es válido ya ha saltado el error
+                // así que suponemos que el jwt ha sido validado
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
 
-                // attach user to context on successful jwt validation
+                // Colocamos user en el Contexto de la Request 
+                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
                 context.Items["User"] = userService.GetById(userId);
+                var role = int.Parse(jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value);
+                context.Items["Role"] = role;
+
+                // var userName = int.Parse(jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value);
+                // context.Items["User"] = userName;
             }
             catch
             {
