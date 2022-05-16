@@ -29,11 +29,10 @@ namespace ApiAnime.Controllers
             return await _context.Anime_User.ToListAsync();
         }
 
-        // GET: api/Anime_User/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Anime_User>> GetAnime_User(int id)
+        [HttpGet("{username}/{animename}")]
+        public ActionResult<List<Anime_User>> GetAnime_UserbyName(string username, string animename)
         {
-            var anime_User = await _context.Anime_User.FindAsync(id);
+            var anime_User = _context.Anime_User.Where(usuario => usuario.Username.Equals(username) && usuario.AnimeName.Equals(animename)).ToList();
 
             if (anime_User == null)
             {
@@ -41,38 +40,6 @@ namespace ApiAnime.Controllers
             }
 
             return anime_User;
-        }
-
-        // PUT: api/Anime_User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnime_User(int id, Anime_User anime_User)
-        {
-            if (id != anime_User.FavoritoId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(anime_User).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!Anime_UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/Anime_User
