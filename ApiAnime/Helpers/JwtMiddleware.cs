@@ -58,8 +58,9 @@ namespace ApiAnime.Helpers
                 var jwtToken = (JwtSecurityToken)validatedToken;
 
                 // Colocamos user en el Contexto de la Request 
-                var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-                context.Items["User"] = userService.GetById(userId);
+                var userId = jwtToken.Claims.First(x => x.Type == "Username").Value;
+                Console.WriteLine(userId);
+                context.Items["User"] = userService.GetByUsername(userId);
                 var role = int.Parse(jwtToken.Claims.First(x => x.Type == ClaimTypes.Role).Value);
                 context.Items["Role"] = role;
 

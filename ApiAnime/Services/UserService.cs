@@ -15,7 +15,7 @@ namespace ApiAnime.Services
     {
         AuthenticateResponse Authenticate(AuthenticateRequest model);
         IEnumerable<UserData> GetAll();
-        UserData GetById(int id);
+        UserData GetByUsername(string username);
     }
 
     public class UserService : IUserService
@@ -43,7 +43,6 @@ namespace ApiAnime.Services
 
             return new AuthenticateResponse
             {
-                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Username = user.Username,
@@ -57,9 +56,9 @@ namespace ApiAnime.Services
             return _context.UserData;
         }
 
-        public UserData GetById(int id)
+        public UserData GetByUsername(string username)
         {
-            return _context.UserData.FirstOrDefault(x => x.Id == id);
+            return _context.UserData.FirstOrDefault(x => x.Username == username);
         }
 
         // helper methods
@@ -74,7 +73,7 @@ namespace ApiAnime.Services
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim("id", user.Id.ToString()),
+                    new Claim("Username", user.Username.ToString()),
                     new Claim(ClaimTypes.Name, user.Username),
                     new Claim(ClaimTypes.Role, user.Role),
                 }),
