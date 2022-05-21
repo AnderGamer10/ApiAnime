@@ -18,8 +18,6 @@ namespace ApiAnime.Models
         public int Edad { get; set; }
         public string Sexo { get; set; }
         public string Biografia { get; set; }
-
-        [JsonIgnore]
         public string Password { get; set; }
     }
 }
